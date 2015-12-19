@@ -8,6 +8,11 @@ M6502EMULATORDLL_API bool loadBinary(const char* path, uint16_t address) {
 	return true;
 }
 
+M6502EMULATORDLL_API bool loadBinaryData(const char* data, int32_t size, uint16_t address) {
+	MemoryMap::Instance()->load_binary_data(data, size, address);
+	return true;
+}
+
 M6502EMULATORDLL_API UINT16 getProgramCounter() {
 	return 0xFFFF;
 }

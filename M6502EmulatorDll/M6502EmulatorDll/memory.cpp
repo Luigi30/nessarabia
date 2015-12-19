@@ -89,6 +89,17 @@ void MemoryMap::load_binary(uint16_t destination, std::string filename) {
 
 }
 
+void MemoryMap::load_binary_data(const char* data, int32_t length, uint16_t destination) {
+
+	uint16_t runningAddress = destination;
+
+	for (int i=0; i < length; i++) {
+		MemoryMap::write_byte(runningAddress, data[i]);
+		runningAddress++;
+	}
+
+}
+
 //Convert an integer address into a wide address struct.
 WideAddress uintAddressToWideAddress(uint16_t address) {
 	return WideAddress{ uint8_t((address >> 8) & 0xFF), uint8_t(address & 0xFF) };

@@ -66,6 +66,7 @@
     <Compile Include="cpu\Disassembly.cs" />
     <Compile Include="cpu\M6502.cs" />
     <Compile Include="cpu\M6502Model.cs" />
+    <Compile Include="iNesRom.cs" />
     <Compile Include="Interop.cs" />
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
@@ -73,6 +74,9 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="MainWindowEvents.cs" />
+    <Compile Include="MainWindowViewModel.cs" />
+    <Compile Include="PPU.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -101,7 +105,7 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>copy "$(SolutionDir)Debug\M6502EmulatorDll.*" "$(TargetDir)"</PostBuildEvent>
+    <PostBuildEvent>copy "$(SolutionDir)\M6502EmulatorDll\Debug\M6502EmulatorDll.*" "$(TargetDir)"</PostBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

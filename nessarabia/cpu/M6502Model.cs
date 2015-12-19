@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace _6502EmulatorFrontend
+namespace nessarabia
 {
     public class M6502Model
     {

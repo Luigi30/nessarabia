@@ -38,6 +38,7 @@ public:
 	void initialize();
 
 	void load_binary(uint16_t destination, std::string filename);
+	void MemoryMap::load_binary_data(const char* data, int32_t length, uint16_t destination);
 
 	void handleReadOverrides(WideAddress);
 	void handleWriteOverrides(WideAddress);

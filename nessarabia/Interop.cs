@@ -5,7 +5,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace _6502EmulatorFrontend
+namespace nessarabia
 {
     public class Interop
     {
@@ -42,35 +42,38 @@ namespace _6502EmulatorFrontend
             public byte DSPCR;
         };
 
-        [DllImport("C:/apple/fruitmachine/M6502EmulatorDll/Debug/M6502EmulatorDll.dll", CallingConvention = CallingConvention.Cdecl)]
+        [DllImport("./M6502EmulatorDll.dll", CallingConvention = CallingConvention.Cdecl)]
         public static extern bool loadBinary([MarshalAs(UnmanagedType.LPStr)] string path, ushort address);
 
-        [DllImport("C:/apple/fruitmachine/M6502EmulatorDll/Debug/M6502EmulatorDll.dll", CallingConvention = CallingConvention.Cdecl)]
+        [DllImport("./M6502EmulatorDll.dll", CallingConvention = CallingConvention.Cdecl)]
+        public static extern bool loadBinaryData(IntPtr data, Int32 size, ushort address);
+
+        [DllImport("./M6502EmulatorDll.dll", CallingConvention = CallingConvention.Cdecl)]
         public static extern ushort getProgramCounter();
 
-        [DllImport("C:/apple/fruitmachine/M6502EmulatorDll/Debug/M6502EmulatorDll.dll", CallingConvention = CallingConvention.Cdecl)]
+        [DllImport("./M6502EmulatorDll.dll", CallingConvention = CallingConvention.Cdecl)]
         public static extern InteropProcessorStatus getProcessorStatus();
 
-        [DllImport("C:/apple/fruitmachine/M6502EmulatorDll/Debug/M6502EmulatorDll.dll", CallingConvention = CallingConvention.Cdecl)]
+        [DllImport("./M6502EmulatorDll.dll", CallingConvention = CallingConvention.Cdecl)]
         public static extern void resetProcessor();
 
         //Execution
-        [DllImport("C:/apple/fruitmachine/M6502EmulatorDll/Debug/M6502EmulatorDll.dll", CallingConvention = CallingConvention.Cdecl)]
+        [DllImport("./M6502EmulatorDll.dll", CallingConvention = CallingConvention.Cdecl)]
         public static extern void doSingleStep();
 
-        [DllImport("C:/apple/fruitmachine/M6502EmulatorDll/Debug/M6502EmulatorDll.dll", CallingConvention = CallingConvention.Cdecl)]
+        [DllImport("./M6502EmulatorDll.dll", CallingConvention = CallingConvention.Cdecl)]
         public static extern MC6821Status getMC6821Status();
 
-        [DllImport("C:/apple/fruitmachine/M6502EmulatorDll/Debug/M6502EmulatorDll.dll", CallingConvention = CallingConvention.Cdecl)]
+        [DllImport("./M6502EmulatorDll.dll", CallingConvention = CallingConvention.Cdecl)]
         public static extern byte getOutputBuffer();
 
-        [DllImport("C:/apple/fruitmachine/M6502EmulatorDll/Debug/M6502EmulatorDll.dll", CallingConvention = CallingConvention.Cdecl)]
+        [DllImport("./M6502EmulatorDll.dll", CallingConvention = CallingConvention.Cdecl)]
         public static extern IntPtr getMemoryRange(ushort baseAddr, ushort length);
 
-        [DllImport("C:/apple/fruitmachine/M6502EmulatorDll/Debug/M6502EmulatorDll.dll", CallingConvention = CallingConvention.Cdecl)]
+        [DllImport("./M6502EmulatorDll.dll", CallingConvention = CallingConvention.Cdecl)]
         public static extern void resetCycleCounter();
 
-        [DllImport("C:/apple/fruitmachine/M6502EmulatorDll/Debug/M6502EmulatorDll.dll", CallingConvention = CallingConvention.Cdecl)]
+        [DllImport("./M6502EmulatorDll.dll", CallingConvention = CallingConvention.Cdecl)]
         public static extern void putKeyInBuffer(byte key);
     }
 }

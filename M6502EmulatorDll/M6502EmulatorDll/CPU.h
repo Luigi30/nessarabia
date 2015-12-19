@@ -56,8 +56,7 @@ public:
 		index_x = 0;
 		index_y = 0;
 		stack_pointer = 0xFF;
-		program_counter = 0xFFFC; //apple
-		//program_counter = 0x0400; //test
+		program_counter = 0xFFFC;
 
 		execute_opcode(0x4c); //jump to reset vector destination
 	}

@@ -33,6 +33,7 @@ extern "C" {
 	};
 
 	extern M6502EMULATORDLL_API bool loadBinary(const char *path, uint16_t address);
+	extern M6502EMULATORDLL_API bool loadBinaryData(const char* data, int32_t size, uint16_t address);
 	
 	//Processor information
 	extern M6502EMULATORDLL_API UINT16 getProgramCounter();

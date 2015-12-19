@@ -1,5 +1,4 @@
-﻿using _6502EmulatorFrontend.cpu;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -10,7 +9,7 @@ using System.Threading.Tasks;
 using System.Windows.Controls;
 using System.Windows.Threading;
 
-namespace _6502EmulatorFrontend
+namespace nessarabia
 {
     public class CharacterInDisplayBufferEventArgs : EventArgs
     {
@@ -111,10 +110,9 @@ namespace _6502EmulatorFrontend
         public void DoProcessorStep(object sender, EventArgs e)
         {
             Interop.doSingleStep();
-            Interop.MC6821Status status = Interop.getMC6821Status();
             UpdateProperties(Interop.getProcessorStatus());
             ProcessorStepCompleted(this, null);
-            UpdateDisplay(this, null);
+            //UpdateDisplay(this, null);
         }
 
         public void DoProcessorStepNoFancyGraphics(object sender, EventArgs e)
@@ -124,9 +122,8 @@ namespace _6502EmulatorFrontend
                 shouldRun = false;
             }
             Interop.doSingleStep();
-            Interop.MC6821Status status = Interop.getMC6821Status();
             UpdateModelDirectly(Interop.getProcessorStatus());
-            UpdateDisplay(this, null);
+            //UpdateDisplay(this, null);
         }
 
         async public void DoProcessorStepInBackground()
@@ -134,9 +131,8 @@ namespace _6502EmulatorFrontend
             await Task.Run(() =>
             {
                 Interop.doSingleStep();
-                Interop.MC6821Status status = Interop.getMC6821Status();
                 UpdateProperties(Interop.getProcessorStatus());
-                UpdateDisplay(this, null);
+                //UpdateDisplay(this, null);
             });
         }
 
@@ -146,11 +142,6 @@ namespace _6502EmulatorFrontend
 
             while (shouldRun)
             {
-                if(frameCounter % 30 == 0 && frameCounter != 0) 
-                {
-                    ToggleCursor(this, null);
-                    frameCounter = 0;
-                }
                 ExecuteFrame();
                 frameCounter++;
             }
@@ -163,10 +154,11 @@ namespace _6502EmulatorFrontend
 
         public void ExecuteFrame()
         {
+            int scanlineCounter = 0;
             var stopwatch = new Stopwatch();
             stopwatch.Start();
 
-            while (model.cycles < 17050) //17050 cycles per frame, 1MHz @ 60fps
+            while (model.cycles < 1364) //1364 cycles per scanline, 262 scanlines per frame
             {
                 if (!shouldRun)
                 {
@@ -175,6 +167,11 @@ namespace _6502EmulatorFrontend
                 else
                 {
                     DoProcessorStepNoFancyGraphics(null, null);
+                }
+                scanlineCounter++;
+                if(scanlineCounter == 262)
+                {
+                    return;
                 }
             }
  
