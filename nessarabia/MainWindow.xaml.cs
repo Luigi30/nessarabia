@@ -36,7 +36,6 @@ namespace nessarabia
     {
         Thread M6502WorkerThread;
         MainWindowViewModel vm = new MainWindowViewModel();
-        PPU ppu = new PPU();
 
         public MainWindow()
         {
@@ -49,7 +48,7 @@ namespace nessarabia
 
             //Set up viewmodel
             vm.Processor = new M6502();
-            //vm.DisplayGrid = new AppleDisplay();
+            vm.Ppu = new PPU();
             vm.DisassembledOpcodes = new ObservableCollection<Disassembly.DisassembledOpcode>();
 
             //Set up events
@@ -99,7 +98,8 @@ namespace nessarabia
             Interop.loadBinaryData(unmanagedPointer, rom.PrgRom.Length, 0x8000);
             Marshal.FreeHGlobal(unmanagedPointer);
 
-            rom.ChrRom.CopyTo(ppu.RAM, 0);
+            rom.ChrRom.CopyTo(vm.Ppu.RAM, 0);
+            vm.Ppu.UpdatePatternTables();
 
             Interop.resetProcessor();
             vm.Processor.UpdateProperties(Interop.getProcessorStatus());
@@ -151,6 +151,8 @@ namespace nessarabia
             enableReadoutControls();
             btnRun.IsEnabled = true;
             btnSingleStep.IsEnabled = true;
+
+
         }
 
         private void tbDebugEntry_KeyDown(object sender, KeyEventArgs e)

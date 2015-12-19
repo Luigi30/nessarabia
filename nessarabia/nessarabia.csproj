@@ -66,6 +66,8 @@
     <Compile Include="cpu\Disassembly.cs" />
     <Compile Include="cpu\M6502.cs" />
     <Compile Include="cpu\M6502Model.cs" />
+    <Compile Include="gfx\PatternTable.cs" />
+    <Compile Include="gfx\Tile.cs" />
     <Compile Include="iNesRom.cs" />
     <Compile Include="Interop.cs" />
     <Compile Include="MainWindow.xaml.cs">
@@ -76,7 +78,8 @@
   <ItemGroup>
     <Compile Include="MainWindowEvents.cs" />
     <Compile Include="MainWindowViewModel.cs" />
-    <Compile Include="PPU.cs" />
+    <Compile Include="gfx\PPU.cs" />
+    <Compile Include="gfx\PPUDisplay.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>

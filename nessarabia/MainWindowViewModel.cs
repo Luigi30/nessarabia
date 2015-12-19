@@ -12,7 +12,7 @@ namespace nessarabia
     public class MainWindowViewModel : INotifyPropertyChanged
     {
         private M6502 _processor;
-        //private AppleDisplay _displayGrid;
+        private PPU _ppu;
         private ObservableCollection<cpu.Disassembly.DisassembledOpcode> _disassembledOpcodes;
 
         #region INotifyPropertyChanged Implementation
@@ -26,18 +26,18 @@ namespace nessarabia
             }
         }
 
-        /*public AppleDisplay DisplayGrid
+        public PPU Ppu
         {
-            get { return _displayGrid; }
+            get { return _ppu; }
             set
             {
-                if (value != _displayGrid)
+                if (value != _ppu)
                 {
-                    _displayGrid = value;
-                    OnPropertyChanged("DisplayGrid");
+                    _ppu = value;
+                    OnPropertyChanged("Ppu");
                 }
             }
-        }*/
+        }
 
         public ObservableCollection<cpu.Disassembly.DisassembledOpcode> DisassembledOpcodes
         {

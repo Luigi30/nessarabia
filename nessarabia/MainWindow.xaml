@@ -51,14 +51,14 @@
                 </StackPanel>
             </Grid>
             <Button x:Name="btnSingleStep" Content="Single Step" HorizontalAlignment="Left" Margin="10,217,0,0" VerticalAlignment="Top" Width="75" Click="btnSingleStep_Click" IsEnabled="False"/>
-            <Image x:Name="image" Source="{Binding Path=DisplayGrid.DisplayCanvas}" HorizontalAlignment="Left" Height="384" Margin="215,0,0,0" VerticalAlignment="Top" Width="640" RenderOptions.BitmapScalingMode="NearestNeighbor"/>
+            <Image x:Name="image" Source="{Binding Path=Ppu.PpuDisplay.DisplayCanvas}" HorizontalAlignment="Left" Height="512" Margin="215,0,0,0" VerticalAlignment="Top" Width="480" RenderOptions.BitmapScalingMode="NearestNeighbor"/>
             <Button x:Name="btnRun" Content="Run" HorizontalAlignment="Left" Margin="135,217,0,0" VerticalAlignment="Top" Width="75" Click="btnRun_Click" IsEnabled="False"/>
             <ListBox x:Name="lbDisassembly" ItemsSource="{Binding DisassembledOpcodes}" HorizontalAlignment="Left" Height="277" Margin="10,271,0,0" VerticalAlignment="Top" Width="200" FontFamily="Courier New">
                 <ListBox.Resources>
                     <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightBrushKey}">LightBlue</SolidColorBrush>
                 </ListBox.Resources>
             </ListBox>
-            <TextBox ScrollViewer.VerticalScrollBarVisibility="Visible" x:Name="tbDebugConsole" HorizontalAlignment="Left" Height="159" Margin="215,389,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="721"/>
+            <TextBox ScrollViewer.VerticalScrollBarVisibility="Visible" x:Name="tbDebugConsole" HorizontalAlignment="Left" Height="36" Margin="215,512,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="721"/>
             <Button x:Name="btnBreak" Content="Break" HorizontalAlignment="Left" Margin="135,244,0,0" VerticalAlignment="Top" Width="75" Click="btnBreak_Click"/>
             <TextBox x:Name="tbDebugEntry" HorizontalAlignment="Left" Height="23" Margin="215,637,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="721" KeyDown="tbDebugEntry_KeyDown"/>
 
