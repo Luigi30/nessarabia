@@ -1,4 +1,5 @@
 ﻿using nessarabia.cpu;
+using nessarabia.gfx;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -53,8 +54,9 @@ namespace nessarabia
 
             //Set up events
             vm.Processor.ProcessorStepCompleted += new M6502.ProcessorStepCompletedEventHandler(AfterProcessorStepCompleted);
-            //vm.Processor.UpdateDisplay += new M6502.UpdateDisplayEventHandler(vm.DisplayGrid.onUpdateDisplay);
+            vm.Processor.UpdateDisplay += new M6502.UpdateDisplayEventHandler(vm.Ppu.UpdateDisplay);
             vm.Processor.ExecutionStopped += new M6502.ExecutionStoppedEventHandler(onExecutionStopped);
+            vm.Ppu.OAMDMATransferRequested += new PPU.OAMDMATransferRequestedHandler(PerformOAMDMATransfer);
             TextCompositionManager.AddTextInputHandler(this, new TextCompositionEventHandler(OnTextComposition));
 
 
@@ -151,8 +153,23 @@ namespace nessarabia
             enableReadoutControls();
             btnRun.IsEnabled = true;
             btnSingleStep.IsEnabled = true;
+        }
 
-
+        public void PerformOAMDMATransfer(object sender, OAMDMAEventArgs e)
+        {
+            ushort baseAddress = (ushort)(e.PageToTransfer * 100);
+            IntPtr memory = Interop.getMemoryRange(baseAddress, 0xFF);
+            for (int i = 0; i < 256; i++)
+            {
+                vm.Ppu.RAM[baseAddress + i] = Marshal.ReadByte(memory, i);
+            }
+            if(vm.Processor.Cycles % 2 == 1)
+            {
+                vm.Processor.Cycles += 513;
+            } else
+            {
+                vm.Processor.Cycles += 512;
+            }
         }
 
         private void tbDebugEntry_KeyDown(object sender, KeyEventArgs e)

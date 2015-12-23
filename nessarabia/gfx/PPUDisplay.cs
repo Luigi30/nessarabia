@@ -15,12 +15,7 @@ namespace nessarabia
         public PPUDisplay()
         {
             DisplayCanvas = new WriteableBitmap(256, 240, 96, 96, PixelFormats.Bgr32, null);
-        }
-
-
-        public void DrawDemoTilemap(List<Tile> tilemap)
-        {
-            //Draw tilemap in order.
+            DisplayCanvas.Clear(Colors.Black);
         }
 
         public WriteableBitmap _displayCanvas;

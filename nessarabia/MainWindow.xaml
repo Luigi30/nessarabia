@@ -51,7 +51,7 @@
                 </StackPanel>
             </Grid>
             <Button x:Name="btnSingleStep" Content="Single Step" HorizontalAlignment="Left" Margin="10,217,0,0" VerticalAlignment="Top" Width="75" Click="btnSingleStep_Click" IsEnabled="False"/>
-            <Image x:Name="image" Source="{Binding Path=Ppu.PpuDisplay.DisplayCanvas}" HorizontalAlignment="Left" Height="512" Margin="215,0,0,0" VerticalAlignment="Top" Width="480" RenderOptions.BitmapScalingMode="NearestNeighbor"/>
+            <Image x:Name="videoOutputImage" Source="{Binding Path=Ppu.PpuDisplay.DisplayCanvas}" HorizontalAlignment="Left" Height="512" Margin="215,0,0,0" VerticalAlignment="Top" Width="480" RenderOptions.BitmapScalingMode="NearestNeighbor"/>
             <Button x:Name="btnRun" Content="Run" HorizontalAlignment="Left" Margin="135,217,0,0" VerticalAlignment="Top" Width="75" Click="btnRun_Click" IsEnabled="False"/>
             <ListBox x:Name="lbDisassembly" ItemsSource="{Binding DisassembledOpcodes}" HorizontalAlignment="Left" Height="277" Margin="10,271,0,0" VerticalAlignment="Top" Width="200" FontFamily="Courier New">
                 <ListBox.Resources>

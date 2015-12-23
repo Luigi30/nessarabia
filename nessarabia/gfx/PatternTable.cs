@@ -25,7 +25,9 @@ namespace nessarabia.gfx
             var tilemap = new List<Tile>();
             for(int i=0; i < 256; i++)
             {
-                tilemap.Add(new Tile(data.Skip(i * 16).Take(16).ToArray()));
+                int offset = i * 16;
+                //tilemap.Add(new Tile(data.Skip(i * 16).Take(16).ToArray()));
+                tilemap.Add(new Tile(data.Skip(offset).Take(16).ToArray()));
             }
             return tilemap;
         }

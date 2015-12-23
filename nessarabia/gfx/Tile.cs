@@ -14,7 +14,8 @@ namespace nessarabia.gfx
         Each byte of tile data is divided into 2 nybbles of color data.
         */ 
         byte[] rawData = new byte[16]; //16 bytes of raw data, two 8x8 planes
-        List<int> ColorIndexes = new List<int>();
+        List<byte> _colorIndexes = new List<byte>();
+        public List<byte> ColorIndexes { get { return _colorIndexes; } }
 
         public Tile(byte[] data)
         {
@@ -26,10 +27,10 @@ namespace nessarabia.gfx
             {
                 if (colors[i])
                 {
-                    ColorIndexes.Add(1); 
+                    _colorIndexes.Add(1); 
                 } else
                 {
-                    ColorIndexes.Add(0);
+                    _colorIndexes.Add(0);
                 }
             }
             
@@ -38,7 +39,7 @@ namespace nessarabia.gfx
             {
                 if (colors[i])
                 {
-                    ColorIndexes[i - colors.Length / 2] += 2;
+                    _colorIndexes[i - colors.Length / 2] += 2;
                 }
             }
         }

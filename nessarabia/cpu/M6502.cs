@@ -1,8 +1,10 @@
-﻿using System;
+﻿using nessarabia.gfx;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -36,7 +38,7 @@ namespace nessarabia
         public delegate void ProcessorClockTickEventHandler(object sender, EventArgs e);
 
         public event UpdateDisplayEventHandler UpdateDisplay;
-        public delegate void UpdateDisplayEventHandler(object sender, EventArgs e);
+        public delegate void UpdateDisplayEventHandler(object sender, UpdateDisplayEventArgs e);
 
         public event ExecutionStoppedEventHandler ExecutionStopped;
         public delegate void ExecutionStoppedEventHandler(object sender, EventArgs e);
@@ -68,6 +70,8 @@ namespace nessarabia
         M6502Model model = new M6502Model();
         public List<ushort> breakpointAddresses = new List<ushort>();
         bool shouldRun = true;
+
+
 
         public void UpdateProperties(Interop.InteropProcessorStatus newStatus)
         {
@@ -121,9 +125,10 @@ namespace nessarabia
             {
                 shouldRun = false;
             }
+            var oldCycles = model.cycles;
             Interop.doSingleStep();
             UpdateModelDirectly(Interop.getProcessorStatus());
-            //UpdateDisplay(this, null);
+            UpdateDisplay(this, new UpdateDisplayEventArgs((model.cycles - oldCycles) * 3)); //3 PPU clocks per CPU clock
         }
 
         async public void DoProcessorStepInBackground()
