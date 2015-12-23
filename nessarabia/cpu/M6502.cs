@@ -43,6 +43,9 @@ namespace nessarabia
         public event ExecutionStoppedEventHandler ExecutionStopped;
         public delegate void ExecutionStoppedEventHandler(object sender, EventArgs e);
 
+        public event NewFrameHasBegunHandler NewFrameHasBegun;
+        public delegate void NewFrameHasBegunHandler(object sender, EventArgs e);
+
         // Invoke the Changed event; called whenever list changes:
         protected virtual void OnProcessorStepCompleted(EventArgs e)
         {
@@ -159,33 +162,34 @@ namespace nessarabia
 
         public void ExecuteFrame()
         {
-            int scanlineCounter = 0;
+            NewFrameHasBegun(this, null);
             var stopwatch = new Stopwatch();
             stopwatch.Start();
 
-            while (model.cycles < 1364) //1364 cycles per scanline, 262 scanlines per frame
+            var scanlineCounter = 0;
+
+            while(scanlineCounter < 262)
             {
-                if (!shouldRun)
+                while (model.cycles < 1364) //1364 cycles per scanline, 262 scanlines per frame, 357368 cycles per frame
                 {
-                    return;
-                }
-                else
-                {
-                    DoProcessorStepNoFancyGraphics(null, null);
+                    if (!shouldRun)
+                    {
+                        return;
+                    }
+                    else
+                    {
+                        DoProcessorStepNoFancyGraphics(null, null);
+                    }
                 }
                 scanlineCounter++;
-                if(scanlineCounter == 262)
-                {
-                    return;
-                }
+                Interop.resetCycleCounter();
+                model.cycles = 0;
             }
  
-            while (stopwatch.Elapsed < TimeSpan.FromMilliseconds(16))
+            while (stopwatch.Elapsed < TimeSpan.FromTicks((10000000 / 60)))
             {
 
             };
-            Interop.resetCycleCounter();
-            model.cycles = 0;
         }
 
         #region INotifyPropertyChanged Implementation

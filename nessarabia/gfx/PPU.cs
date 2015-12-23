@@ -6,10 +6,12 @@ using System.Drawing;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using System.Windows.Threading;
 using static System.Windows.Media.Imaging.WriteableBitmapExtensions;
 
 namespace nessarabia.gfx
@@ -46,6 +48,8 @@ namespace nessarabia.gfx
 
     public partial class PPU
     {
+        private readonly SynchronizationContext _syncContext;
+
         /* 
         http://www.fceux.com/web/help/fceux.html?PPU.html
 
@@ -67,6 +71,8 @@ namespace nessarabia.gfx
         1 frame         = 89342 PPU clocks
         */
 
+        const int CLOCKS_PER_SCANLINE = 341;
+
         public byte[] RAM = new byte[16384];
         public byte[] OAM = new byte[256]; //object attribute memory
 
@@ -84,6 +90,8 @@ namespace nessarabia.gfx
         }
         private PPUDisplay _ppuDisplay;
 
+        private WriteableBitmap displayBuffer;
+
         List<Color> Palette { get; }
 
         PatternTable pt0;
@@ -91,6 +99,8 @@ namespace nessarabia.gfx
 
         int cycles;
         bool oddFrame; //pre-render line is one dot shorter on odd frame counts
+
+        byte testPaletteGreen = 0;
 
         public event OAMDMATransferRequestedHandler OAMDMATransferRequested;
         public delegate void OAMDMATransferRequestedHandler(object sender, OAMDMAEventArgs e);
@@ -256,6 +266,8 @@ namespace nessarabia.gfx
 
         public PPU()
         {
+            _syncContext = SynchronizationContext.Current;
+
             PpuDisplay = new PPUDisplay();
             Palette = CreatePalette();
 
@@ -264,6 +276,21 @@ namespace nessarabia.gfx
             RAM[0x3F02] = 0x27;
             RAM[0x3F03] = 0x18;
 
+        }
+
+        public void onNewFrame(object sender, EventArgs e)
+        {
+            if(displayBuffer != null)
+            {
+                WriteableBitmap image = displayBuffer.Crop(0, 21, 256, 240);
+                byte[] buffer = new byte[256 * 240 * 4];
+                int stride = image.PixelWidth * (image.Format.BitsPerPixel / 8);
+                image.CopyPixels(new Int32Rect(0, 0, 256, 240), buffer, stride, 0);
+                _syncContext.Post(o => PpuDisplay.DisplayCanvas.WritePixels(new Int32Rect(0, 0, 256, 240), buffer, stride, 0), null);
+            }
+
+            displayBuffer = new WriteableBitmap(340, 262, 96, 96, PixelFormats.Bgr32, null);
+            displayBuffer.Clear(Colors.Black);
         }
 
         public void UpdateDisplay(object sender, UpdateDisplayEventArgs e)
@@ -281,28 +308,39 @@ namespace nessarabia.gfx
 
             for(int i = 0; i < e.PixelClocks; i++)
             {
+                int scanline = (cycles / CLOCKS_PER_SCANLINE);
+                int pixelPosition = (cycles % CLOCKS_PER_SCANLINE);
 
+                displayBuffer.SetPixel(pixelPosition, scanline, 0, testPaletteGreen, 0);
+                testPaletteGreen++;
+                cycles++;
+
+                if (cycles == 89342)
+                {
+                    cycles = 0;
+                }
             }
         }
 
         public byte[] GetPpuRegistersFromMemory()
         {
-            var memPtr = Interop.getMemoryRange(0x2000, 0x07);
-            byte[] ppuRegisters = new byte[7];
-            for (int i = 0; i < 7; i++)
+            var memPtr = Interop.getMemoryRange(0x2000, 0x08);
+            byte[] ppuRegisters = new byte[8];
+            for (int i = 0; i < 8; i++)
             {
                 ppuRegisters[i] = Marshal.ReadByte(memPtr, i);
             }
+            Interop.freeBuffer(memPtr);
             return ppuRegisters;
         }
 
 
-    public void UpdatePatternTables()
+        public void UpdatePatternTables()
         {
             pt0 = new PatternTable(RAM, 0x0000);
             pt1 = new PatternTable(RAM, 0x1000);
 
-            DumpTilemap();
+            //DumpTilemap();
         }
 
         public void DumpTilemap()

@@ -57,6 +57,7 @@ namespace nessarabia
             vm.Processor.UpdateDisplay += new M6502.UpdateDisplayEventHandler(vm.Ppu.UpdateDisplay);
             vm.Processor.ExecutionStopped += new M6502.ExecutionStoppedEventHandler(onExecutionStopped);
             vm.Ppu.OAMDMATransferRequested += new PPU.OAMDMATransferRequestedHandler(PerformOAMDMATransfer);
+            vm.Processor.NewFrameHasBegun += new M6502.NewFrameHasBegunHandler(vm.Ppu.onNewFrame);
             TextCompositionManager.AddTextInputHandler(this, new TextCompositionEventHandler(OnTextComposition));
 
 

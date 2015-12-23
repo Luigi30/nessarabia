@@ -75,5 +75,8 @@ namespace nessarabia
 
         [DllImport("./M6502EmulatorDll.dll", CallingConvention = CallingConvention.Cdecl)]
         public static extern void putKeyInBuffer(byte key);
+
+        [DllImport("./M6502EmulatorDll.dll", CallingConvention = CallingConvention.Cdecl)]
+        public static extern void freeBuffer(IntPtr buffer);
     }
 }

@@ -80,3 +80,7 @@ M6502EMULATORDLL_API uint8_t* getMemoryRange(uint16_t base, uint16_t length) {
 
 	return memoryRange;
 }
+
+M6502EMULATORDLL_API void freeBuffer(char *buffer) {
+	free(buffer);
+}

@@ -51,4 +51,5 @@ extern "C" {
 
 	//Memory
 	extern M6502EMULATORDLL_API uint8_t* getMemoryRange(uint16_t base, uint16_t length);
+	extern M6502EMULATORDLL_API void freeBuffer(char* buffer);
 }
