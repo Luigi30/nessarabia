@@ -295,29 +295,70 @@ namespace nessarabia.gfx
 
         public void UpdateDisplay(object sender, UpdateDisplayEventArgs e)
         {
-            //pull latest PPU registers and update
-            byte[] ppuRegisters = GetPpuRegistersFromMemory();
-            PPUCTRL = ppuRegisters[0];
-            PPUMASK = ppuRegisters[1];
-            //PPUSTATUS is read-only
-            OAMADDR = ppuRegisters[3];
-            OAMDATA = ppuRegisters[4];
-            PPUSCROLL = ppuRegisters[5];
-            PPUADDR = ppuRegisters[6];
-            PPUDATA = ppuRegisters[7];
+            /* Set up the various pointers we need */
+            ushort nameTableAddress = (ushort)(0x2000 + (0x0400 * (_ppuCtrl & 0x01) + (_ppuCtrl & 0x02)));
+            ushort backgroundTableAddress;
+            ushort spriteTableAddress;
 
-            for(int i = 0; i < e.PixelClocks; i++)
+            if ((_ppuCtrl & 0x10) == 0x10)
+            {
+                backgroundTableAddress = 0x1000;
+            }
+            else
+            {
+                backgroundTableAddress = 0x0000;
+            }
+
+            if ((_ppuCtrl & 0x08) == 0x08)
+            {
+                spriteTableAddress = 0x1000;
+            }
+            else
+            {
+                spriteTableAddress = 0x0000;
+            }
+
+            for (int i = 0; i < e.PixelClocks; i++)
             {
                 int scanline = (cycles / CLOCKS_PER_SCANLINE);
                 int pixelPosition = (cycles % CLOCKS_PER_SCANLINE);
 
-                displayBuffer.SetPixel(pixelPosition, scanline, 0, testPaletteGreen, 0);
-                testPaletteGreen++;
-                cycles++;
+                //Draw the background if enabled.
+                //if ((_ppuMask & 0x08) == 0x08)
+                //{
+                if(scanline < 240)
+                {
+                    if (pixelPosition > 3 && pixelPosition < 260)
+                    {
+                        //get the tile for this pixel. 32x30 tilemap
+                        int tileIndex = (pixelPosition / 8); //X coord. Scanline count is Y coord
+                        byte tile = RAM[0x2000 + (tileIndex + (scanline * 32))];
+                        var selectedTile = pt0.Tilemap[tile];
+                        var pixelColor = Palette[RAM[0x3F00 + selectedTile.ColorIndexes[pixelPosition % 8]]];
+                        displayBuffer.SetPixel(pixelPosition, scanline, pixelColor);
+
+                        //displayBuffer.SetPixel(pixelPosition, scanline, 0, testPaletteGreen, 0);
+                        //testPaletteGreen++;
+                    }
+                }
+                   
+                //}                
+
+                cycles++; //cycles 256-341 don't draw graphics
 
                 if (cycles == 89342)
                 {
                     cycles = 0;
+                    //pull latest PPU registers and update
+                    byte[] ppuRegisters = GetPpuRegistersFromMemory();
+                    PPUCTRL = ppuRegisters[0];
+                    PPUMASK = ppuRegisters[1];
+                    //PPUSTATUS is read-only
+                    OAMADDR = ppuRegisters[3];
+                    OAMDATA = ppuRegisters[4];
+                    PPUSCROLL = ppuRegisters[5];
+                    PPUADDR = ppuRegisters[6];
+                    PPUDATA = ppuRegisters[7];
                 }
             }
         }
