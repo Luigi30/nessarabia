@@ -13,6 +13,8 @@ public:
 	void init();
 	COMPUTER_CONFIG EmulatorState::getConfigurationType();
 
+	void (__stdcall *ppuUpdatedCallback)();
+
 private:
 	EmulatorState() {};
 	EmulatorState(EmulatorState const&) {};

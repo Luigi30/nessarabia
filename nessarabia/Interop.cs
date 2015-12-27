@@ -78,5 +78,8 @@ namespace nessarabia
 
         [DllImport("./M6502EmulatorDll.dll", CallingConvention = CallingConvention.Cdecl)]
         public static extern void freeBuffer(IntPtr buffer);
+
+        [DllImport("./M6502EmulatorDll.dll", CallingConvention = CallingConvention.Cdecl)]
+        public static extern void setPpuUpdatedCallback([MarshalAs(UnmanagedType.FunctionPtr)]gfx.PPU.UpdatePpuRegistersFromMemoryCallback callback);
     }
 }

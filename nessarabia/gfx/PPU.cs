@@ -100,10 +100,11 @@ namespace nessarabia.gfx
         int cycles;
         bool oddFrame; //pre-render line is one dot shorter on odd frame counts
 
-        byte testPaletteGreen = 0;
-
         public event OAMDMATransferRequestedHandler OAMDMATransferRequested;
         public delegate void OAMDMATransferRequestedHandler(object sender, OAMDMAEventArgs e);
+
+        public event PpuRegistersChangedHandler PpuRegistersChanged;
+        public delegate void PpuRegistersChangedHandler(object sender, EventArgs e);
 
         #region registers
         byte _ppuCtrl;      //$2000
@@ -276,13 +277,22 @@ namespace nessarabia.gfx
             RAM[0x3F02] = 0x27;
             RAM[0x3F03] = 0x18;
 
+            for(int i = 0; i < 30; i++)
+            {
+                for (int j = 0; j < 32; j++)
+                {
+                    RAM[0x2000 + (i * 32) + j] = (byte)i;
+                }
+
+            }
+
         }
 
         public void onNewFrame(object sender, EventArgs e)
         {
             if(displayBuffer != null)
             {
-                WriteableBitmap image = displayBuffer.Crop(0, 21, 256, 240);
+                WriteableBitmap image = displayBuffer.Crop(0, 0, 256, 240).Flip(FlipMode.Vertical);
                 byte[] buffer = new byte[256 * 240 * 4];
                 int stride = image.PixelWidth * (image.Format.BitsPerPixel / 8);
                 image.CopyPixels(new Int32Rect(0, 0, 256, 240), buffer, stride, 0);
@@ -300,27 +310,34 @@ namespace nessarabia.gfx
             ushort backgroundTableAddress;
             ushort spriteTableAddress;
 
+            PatternTable bgPattern;
+            PatternTable spritePattern;
+
             if ((_ppuCtrl & 0x10) == 0x10)
             {
                 backgroundTableAddress = 0x1000;
+                bgPattern = pt1;
             }
             else
             {
                 backgroundTableAddress = 0x0000;
+                bgPattern = pt0;
             }
 
             if ((_ppuCtrl & 0x08) == 0x08)
             {
                 spriteTableAddress = 0x1000;
+                spritePattern = pt1;
             }
             else
             {
                 spriteTableAddress = 0x0000;
+                spritePattern = pt0;
             }
 
             for (int i = 0; i < e.PixelClocks; i++)
             {
-                int scanline = (cycles / CLOCKS_PER_SCANLINE);
+                int scanline = (cycles / CLOCKS_PER_SCANLINE); //TODO: dummy scanline -1
                 int pixelPosition = (cycles % CLOCKS_PER_SCANLINE);
 
                 //Draw the background if enabled.
@@ -330,19 +347,31 @@ namespace nessarabia.gfx
                 {
                     if (pixelPosition > 3 && pixelPosition < 260)
                     {
-                        //get the tile for this pixel. 32x30 tilemap
-                        int tileIndex = (pixelPosition / 8); //X coord. Scanline count is Y coord
-                        byte tile = RAM[0x2000 + (tileIndex + (scanline * 32))];
-                        var selectedTile = pt0.Tilemap[tile];
-                        var pixelColor = Palette[RAM[0x3F00 + selectedTile.ColorIndexes[pixelPosition % 8]]];
-                        displayBuffer.SetPixel(pixelPosition, scanline, pixelColor);
-
-                        //displayBuffer.SetPixel(pixelPosition, scanline, 0, testPaletteGreen, 0);
-                        //testPaletteGreen++;
+                        int adjustedPixelPosition = pixelPosition - 4; //subtract 4 to give us the corrected relative X coordinate
+                        int tilemapXCoord = (adjustedPixelPosition / 8); //X coordinate of the tilemap
+                        int tilemapYCoord = (scanline / 8);
+                        //int tileYCoord = (scanline % 8); //how many lines into the tile we are
+                        //int tileNumber = RAM[0x2000 + (tilemapYCoord * 32)];
+                        var tile = bgPattern.Tilemap[RAM[nameTableAddress + (tilemapYCoord * 32)]]; //get the tile
+                        //var tileCoordOffset = (adjustedPixelPosition % 8) + ((scanline % 8) * 8); //get the pixel we need
+                        var colorIndex = tile.ColorIndexes[(adjustedPixelPosition % 8) + ((scanline % 8) * 8)]; //get its color index
+                        //var paletteColor = RAM[0x3F00 + colorIndex]; //what color does that signify?
+                        //var pixelColor = Palette[RAM[0x3F00 + colorIndex]]; //get the RGB value
+                        displayBuffer.SetPixel(adjustedPixelPosition, scanline, Palette[RAM[0x3F00 + colorIndex]]); //and write it to the buffer
                     }
                 }
                    
-                //}                
+                //} 
+                
+                //do nothing on scanline 240 
+                
+                if(scanline == 241)
+                {
+                    if(pixelPosition == 1)
+                    {
+                        _ppuStatus = (byte)(_ppuStatus | 0x80);
+                    }
+                }              
 
                 cycles++; //cycles 256-341 don't draw graphics
 
@@ -350,21 +379,33 @@ namespace nessarabia.gfx
                 {
                     cycles = 0;
                     //pull latest PPU registers and update
-                    byte[] ppuRegisters = GetPpuRegistersFromMemory();
-                    PPUCTRL = ppuRegisters[0];
-                    PPUMASK = ppuRegisters[1];
-                    //PPUSTATUS is read-only
-                    OAMADDR = ppuRegisters[3];
-                    OAMDATA = ppuRegisters[4];
-                    PPUSCROLL = ppuRegisters[5];
-                    PPUADDR = ppuRegisters[6];
-                    PPUDATA = ppuRegisters[7];
+                    
                 }
             }
         }
 
-        public byte[] GetPpuRegistersFromMemory()
+        public delegate void UpdatePpuRegistersFromMemoryCallback();
+        public void UpdatePpuRegistersFromMemory()
         {
+            UpdatePpuRegistersFromMemory(null, null);
+        }
+
+        public void UpdatePpuRegistersFromMemory(object sender, EventArgs e)
+        {
+            byte[] ppuRegisters = GetPpuRegistersFromMemory(e);
+            PPUCTRL = ppuRegisters[0];
+            PPUMASK = ppuRegisters[1];
+            //PPUSTATUS is read-only
+            OAMADDR = ppuRegisters[3];
+            OAMDATA = ppuRegisters[4];
+            PPUSCROLL = ppuRegisters[5];
+            PPUADDR = ppuRegisters[6];
+            PPUDATA = ppuRegisters[7];
+        }
+
+        public byte[] GetPpuRegistersFromMemory(EventArgs e)
+        {
+            //TODO: if e != null, check for updated register
             var memPtr = Interop.getMemoryRange(0x2000, 0x08);
             byte[] ppuRegisters = new byte[8];
             for (int i = 0; i < 8; i++)
@@ -374,7 +415,6 @@ namespace nessarabia.gfx
             Interop.freeBuffer(memPtr);
             return ppuRegisters;
         }
-
 
         public void UpdatePatternTables()
         {

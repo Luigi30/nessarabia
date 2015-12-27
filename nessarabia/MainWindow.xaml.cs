@@ -58,8 +58,11 @@ namespace nessarabia
             vm.Processor.ExecutionStopped += new M6502.ExecutionStoppedEventHandler(onExecutionStopped);
             vm.Ppu.OAMDMATransferRequested += new PPU.OAMDMATransferRequestedHandler(PerformOAMDMATransfer);
             vm.Processor.NewFrameHasBegun += new M6502.NewFrameHasBegunHandler(vm.Ppu.onNewFrame);
+            vm.Ppu.PpuRegistersChanged += new PPU.PpuRegistersChangedHandler(vm.Ppu.UpdatePpuRegistersFromMemory);
             TextCompositionManager.AddTextInputHandler(this, new TextCompositionEventHandler(OnTextComposition));
-
+        
+            //Set up callbacks
+            Interop.setPpuUpdatedCallback(vm.Ppu.UpdatePpuRegistersFromMemory);
 
             InitializeComponent();
             binaryLoadedStatus.SetBinding(ContentProperty, new Binding("LoadSuccess"));

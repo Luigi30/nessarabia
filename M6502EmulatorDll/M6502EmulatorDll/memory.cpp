@@ -42,6 +42,13 @@ void MemoryMap::write_byte(WideAddress address, uint8_t data) {
 
 void MemoryMap::write_byte(WideAddress address, uint8_t data, bool overrides) {
 	pages[address.high].write_byte(address.low, data);
+	
+	/*
+	if (address >= 0x2000 && address <= 0x2007 || address == 0x4014) {
+		EmulatorState::Instance()->ppuUpdatedCallback();
+	}
+	*/
+	
 	if (overrides) {
 		handleWriteOverrides(address);
 	}
